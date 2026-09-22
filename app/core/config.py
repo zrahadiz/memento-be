@@ -10,6 +10,10 @@ class Settings(BaseSettings):
 
     database_url: str
 
+    session_cookie_name: str = "memento_session"
+    session_expire_days: int = 7
+    session_cookie_secure: bool = False
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
