@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     debug: bool = False
 
     database_url: str
+    frontend_url: str
 
     session_cookie_name: str = "memento_session"
     session_expire_days: int = 7
