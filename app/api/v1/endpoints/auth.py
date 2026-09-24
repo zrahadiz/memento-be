@@ -3,6 +3,7 @@ from fastapi import (
     Depends,
     Response,
     status,
+    Cookie
 )
 from sqlalchemy.orm import Session
 
@@ -14,9 +15,11 @@ from app.schemas.user import UserResponse
 from app.services.auth import AuthService
 from app.schemas.auth import (
     LoginRequest,
-    LoginResponse,
+    MessageResponse,
     RegisterRequest,
 )
+from app.api.dependencies.auth import get_current_user
+from app.models.users import Users
 
 router = APIRouter()
 
@@ -41,13 +44,13 @@ def register(
 
 @router.post(
     "/login",
-    response_model=LoginResponse,
+    response_model=MessageResponse,
 )
 def login(
     data: LoginRequest,
     response: Response,
     auth_service: AuthService = Depends(get_auth_service),
-) -> LoginResponse:
+) -> MessageResponse:
     session_token = auth_service.login(data)
 
     response.set_cookie(
@@ -60,6 +63,42 @@ def login(
         path="/",
     )
 
-    return LoginResponse(
+    return MessageResponse(
         message="Login successful"
+    )
+
+@router.get(
+    "/me",
+    response_model=UserResponse,
+)
+def get_me(
+    current_user: Users = Depends(get_current_user),
+) -> UserResponse:
+    return current_user
+
+@router.post(
+    "/logout",
+    response_model=MessageResponse,
+)
+def logout(
+    response: Response,
+    session_token: str | None = Cookie(
+        default=None,
+        alias=settings.session_cookie_name,
+    ),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> MessageResponse:
+    if session_token is not None:
+        auth_service.logout(session_token)
+
+    response.delete_cookie(
+        key=settings.session_cookie_name,
+        path="/",
+        httponly=True,
+        secure=settings.session_cookie_secure,
+        samesite="lax",
+    )
+
+    return MessageResponse(
+        message="Logout successful"
     )

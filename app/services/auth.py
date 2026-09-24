@@ -89,3 +89,15 @@ class AuthService:
         )
 
         return session_token
+
+    def logout(
+        self,
+        session_token: str,
+    ) -> None:
+        token_hash = hash_session_token(
+            session_token
+        )
+
+        self.session_repository.delete_by_token_hash(
+            token_hash
+        )               

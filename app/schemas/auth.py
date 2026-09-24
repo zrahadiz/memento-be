@@ -21,5 +21,5 @@ class LoginRequest(BaseModel):
         max_length=128,
     )
 
-class LoginResponse(BaseModel):
+class MessageResponse(BaseModel):
     message: str
