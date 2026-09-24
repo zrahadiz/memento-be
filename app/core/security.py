@@ -2,6 +2,8 @@ import hashlib
 import secrets
 
 from pwdlib import PasswordHash
+from datetime import datetime, timedelta, timezone
+from app.core.config import settings
 
 password_hasher = PasswordHash.recommended()
 
@@ -24,3 +26,8 @@ def hash_session_token(token: str) -> str:
     return hashlib.sha256(
         token.encode("utf-8")
     ).hexdigest()
+
+def get_session_expiry() -> datetime:
+    return datetime.now(timezone.utc) + timedelta(
+        days=settings.session_expire_days
+    )
